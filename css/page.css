@@ -1,0 +1,40 @@
+
+html, body {
+    font-family: Verdana,sans-serif;
+    font-size: 15px;
+    line-height: 1.5;
+}
+
+ul {
+    display: block;
+}
+
+ul.horizontal {
+    list-style-type: none;
+    margin: 0;
+    padding: 0;
+    overflow: hidden;
+}
+
+li {
+    display: list-item;
+    text-align: -webkit-match-parent;
+    /*border: 1px solid black;*/
+}
+
+ul.horizontal li {
+    float: left;
+}
+
+ul li a  {
+    display: block;
+    color: #666;
+    text-align: center;
+    padding: 14px 16px;
+    text-decoration: none;
+    cursor: hand;
+}
+
+.right {
+    float: right;
+}
