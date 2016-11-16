@@ -3,32 +3,20 @@
 <head>
     <meta charset="utf-8">
     <title>Conway's game of life with D3</title>
-    <!--<title>Conway's Game of Life</title>-->
+
     <script type="text/javascript" src="d3/d3.v4.js"></script>
     <script type="text/javascript" src="d3/d3-timer.v1.js"></script>
-    <!--<script src="js/index.js"></script>-->
+
+    <script src="js/datanode.js"></script>
+    <script src="js/board.js"></script>
+    <script src="js/conway.js"></script>
+    <script src="js/index.js"></script>
 
     <link rel="stylesheet" href="css/page.css">
-
-    <style>
-        svg .dead {
-            stroke: white;
-            fill: white;
-        }
-
-        svg .alive {
-            stroke: white;
-            fill: black
-        }
-    </style>
+    <link rel="stylesheet" href="css/conway.css">
 
 </head>
 <body>
-
-<!--<script src="js/index.js"></script>-->
-<!--<div id="conway"></div>-->
-
-<!--<div class="bar"></div>-->
 
 <ul id="toolbar" class="horizontal">
     <li><a id="startBtn" href="javascript:void(0);">Start</a></li>
@@ -39,147 +27,39 @@
 
 <script type="text/javascript">
 
-    var types = ['dead', 'alive'];
+    var svg = d3.select("#view").append("svg");
 
-    var individualH = 10;
-    var individualW = 10;
+    var conway = new Conway(svg);
+    conway.generateData();
+    conway.init();
 
-    var nW = 50;
-    var nH = 50;
+    conway.render();
 
-    // Width and height
-    var w = nW * individualW;
-    var h = nH * individualH;
-
-    var randomType = function () {
-        return types[Math.trunc(Math.random() * types.length)];
-    };
-
-    var dataset = (function () {
-        var ds = [];
-        for (var i = 0; i < nW * nH; i++) {
-            ds.push({
-                x: (i % nW),
-                y: Math.trunc(i / nW),
-                type: randomType()
-            });
-        }
-        return ds;
-    })();
-
-    var svg = d3.select("#view").append("svg")
-            .attr("width", w)
-            .attr("height", h);
-
-    var squares = svg.selectAll("rect")
-            .data(dataset)
-            .enter()
-            .append("rect");
-
-    var renderState = function () {
-        squares
-                .attr("x", function (d, i) {
-                    return d.x * individualW;
-                })
-                .attr("y", function (d, i) {
-                    return d.y * individualH;
-                })
-                .attr("height", function (d, i) {
-                    return individualH + 'px';
-                })
-                .attr("width", function (d, i) {
-                    return individualW + 'px';
-                })
-                .attr("class", function (d, i) {
-                    return d.type;
-                });
-    };
-
-    var xyToIndex = function (x, y) {
-        return (y * nW) + x;
-    };
-
-    var getNeighbours = function (v) {
-        var x = v.x;
-        var y = v.y;
-
-        var r = [];
-        [-1, 0, 1].forEach(function (xd) {
-            [-1, 0, 1].forEach(function (yd) {
-                var xi = x + xd;
-                var yi = y + yd;
-                if (xd == 0 && yd == 0) return;
-                if (xi < 0 || xi >= nW) return;
-                if (yi < 0 || yi >= nH) return;
-
-                r.push(dataset[xyToIndex(xi, yi)]);
-            });
-        });
-        return r;
-    };
-
-    var isDead = function (v) {
-        return v.type == 'dead';
-    };
-
-    var isAlive = function (v) {
-        return !isDead(v);
-    };
-
-    /*
-     Conway's game of life [rules]
-
-     Any live cell with fewer than two live neighbours dies, as if caused by under-population.
-     Any live cell with two or three live neighbours lives on to the next generation.
-     Any live cell with more than three live neighbours dies, as if by over-population.
-     Any dead cell with exactly three live neighbours becomes a live cell, as if by reproduction.
-     */
-    var nextGen = function () {
-        var previous = dataset.slice();
-
-        previous.forEach(function (v) {
-            var newType = v.type;
-            var livingNeighbours = getNeighbours(v).filter(isAlive).length;
-            ;
-            if (isAlive(v)) {
-                newType = (livingNeighbours < 2 || livingNeighbours > 3) ? 'dead' : 'alive';
-            } else {
-                newType = (livingNeighbours == 3) ? 'alive' : 'dead';
-            }
-
-            dataset[xyToIndex(v.x, v.y)].type = newType;
-
-        });
-    };
-
-    renderState();
-
-    var gen = 1;
     var timer = null;
     var delay = 500;
 
-    var step = function () {
-        console.log('Gen: ' + gen);
+    var genStep = function () {
+        console.log('Gen: ' + conway.getGeneration());
 
-        renderState();
-        nextGen();
-
-        gen++;
+        conway.render();
+        conway.nextGen();
     };
 
-    // These two buttons don't stop the timer,
-    // just set flags to indicate that these two elements should stop/start:
     var startbtn = d3.select("#startBtn");
     startbtn.on("click", function () {
-        timer = d3.interval(step, delay);
+        if (timer == null) {
+            genStep(); // run once immediately
+            timer = d3.interval(genStep, delay);
+        }
     });
-
 
     var stopbtn = d3.select("#stopBtn");
     stopbtn.on("click", function () {
-        timer.stop();
+        if (timer != null) {
+            timer.stop();
+            timer = null;
+        }
     });
-
 
 </script>
 </body>

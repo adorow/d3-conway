@@ -1,0 +1,10 @@
+
+svg .dead {
+    stroke: white;
+    fill: white;
+}
+
+svg .alive {
+    stroke: white;
+    fill: black
+}
