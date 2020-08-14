@@ -8,8 +8,3 @@ Run it locally
 --------------
 
 > `npm run start`
-
-Or view it online
------------------
-
-[Going](https://raw.githubusercontent.com/adorow/d3-conway/master/index.html)
